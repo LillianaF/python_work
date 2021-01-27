@@ -1,6 +1,9 @@
 import csv
 from datetime import datetime
 
+from plotly.graph_objs import Scattergeo, Layout
+from plotly import offline
+
 filename = 'data/world_fires_7_day.csv'
 with open(filename) as f:
     reader = csv.reader(f)
@@ -11,7 +14,10 @@ with open(filename) as f:
 
     # Get dates, lons, lats, and brightness
     dates, lons, lats, brightness = [], [], [], []
+    # count = 0
     for row in reader:
+        # count = count + 1
+        # print(count)
         date = datetime.strptime(row[5], '%Y-%m-%d')
         bright = float(row[2])
         dates.append(date)
@@ -19,4 +25,18 @@ with open(filename) as f:
         lats.append(row[0])
         brightness.append(bright)
 
-print(lats[:5])
+# Map the fires
+data = [{
+    'type': 'scattergeo',
+    'lon': lons,
+    'lat': lats,
+    'marker': {
+        'size': [bright/20 for bright in brightness],
+    },
+}]
+my_layout = Layout(title='Global Fires', title_x=0.5)
+
+fig = {'data': data, 'layout': my_layout}
+offline.plot(fig, filename='global_fires.html')
+
+# print(lats[:5])
